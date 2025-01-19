@@ -1,5 +1,7 @@
-# Vue 3 + Vite
+# Quit4Real.today
+This is the Front-End that is used in the ( not live yet ) website https://quit4real.today
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+This is uses the *quit4real.today-tracker* backend written in `go`.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+# Support
+Please and I mean please help me writing the FE. I do not enjoy this one bit so any help I will highly thank
