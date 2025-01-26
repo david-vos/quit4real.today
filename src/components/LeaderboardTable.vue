@@ -59,7 +59,7 @@ export default {
   },
   async created() {
     // Fetch leaderboard data on component creation
-    const apiUrl = import.meta.env.VITE_APP_API_URL || "http://localhost:8080";
+    const apiUrl = import.meta.env.VITE_APP_API_URL;
     try {
       const response = await fetch(`${apiUrl}/fail/leaderboard`);
       if (!response.ok) {

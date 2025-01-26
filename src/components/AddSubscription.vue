@@ -1,7 +1,7 @@
 <template>
   <div class="add-subscription-container">
     <h2>Add Subscription</h2>
-    <button @click="closePopup">buh</button>
+    <button @click="closePopup">Close</button>
     <form @submit.prevent="submitSubscription">
       <div class="form-group">
         <label for="display_name">Display Name:</label>
@@ -68,7 +68,8 @@ export default {
   methods: {
     async submitSubscription() {
       try {
-        const response = await fetch('http://localhost:8080/subscriptions', {
+        const apiUrl = import.meta.env.VITE_APP_API_URL;
+        const response = await fetch(apiUrl+'/subscriptions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
