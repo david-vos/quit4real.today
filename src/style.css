@@ -1,103 +1,172 @@
 :root {
-  /* Dark mode variables */
-  --background-color: #313136;
-  --header-bg-color: #16161a;
-  --text-color: #b7b7b7; /* Pure white text */
-  --table-header-color: #1e1e24;
-  --table-row-color: #25252b;
-  --table-row-alt: #2a2a31;
-  --table-row-hover: #33333a;
-  --highlight-color: #ff7a00;
+    /* Dark mode variables */
+    --background-color: #313136;
+    --header-bg-color: #16161a;
+    --text-color: #b7b7b7; /* Pure white text */
+    --table-header-color: #1e1e24;
+    --table-row-color: #25252b;
+    --table-row-alt: #2a2a31;
+    --table-row-hover: #33333a;
+    --highlight-color: #ff7a00;
 
-  --font-family: "Inter", sans-serif;
+    --font-family: "Inter", sans-serif;
 }
 
 /* Global reset */
 html,
 body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: var(--font-family);
-  background-color: var(--background-color); /* Ensure global background matches theme */
-  color: var(--text-color); /* Ensure global text color matches theme */
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: var(--font-family);
+    background-color: var(--background-color); /* Ensure global background matches theme */
+    color: var(--text-color); /* Ensure global text color matches theme */
 }
 
 #app {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header styling */
 .header {
-  text-align: center;
-  padding: 20px 0;
-  background-color: var(--header-bg-color);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    padding: 20px 0;
+    background-color: var(--header-bg-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar styling using Flexbox */
+.sidebar {
+    width: 250px; /* Set your sidebar width */
+    background-color: var(--header-bg-color);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.sidebar a {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 10px 0;
+}
+
+.sidebar a:hover {
+    background-color: var(--table-row-hover);
+    border-radius: 5px; /* Optional - for rounded corners */
 }
 
 .title {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--highlight-color);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 0;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--highlight-color);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
 }
 
 /* Table styling */
 .table-container {
-  width: 100%;
-  max-width: 1200px;
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 1200px;
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 1.1rem;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.1rem;
 }
 
 th,
 td {
-  padding: 15px 20px;
-  text-align: left;
+    padding: 15px 20px;
+    text-align: left;
 }
 
 th {
-  background-color: var(--table-header-color);
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+    background-color: var(--table-header-color);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 td {
-  background-color: var(--table-row-color);
+    background-color: var(--table-row-color);
 }
 
 tr:nth-child(even) td {
-  background-color: var(--table-row-alt);
+    background-color: var(--table-row-alt);
 }
 
 tr:hover td {
-  background-color: var(--table-row-hover);
-  transition: background-color 0.2s ease-in-out;
+    background-color: var(--table-row-hover);
+    transition: background-color 0.2s ease-in-out;
 }
 
 /* Scrollbar styling */
 .table-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 .table-container::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 4px;
+    background: #444;
+    border-radius: 4px;
 }
 
 .table-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+    background: #555;
+}
+
+/* Responsive adjustments for mobile views */
+@media (max-width: 768px) {
+    /* Reduce font size for better mobile display */
+    .title {
+        font-size: 2rem;
+    }
+
+    table {
+        font-size: 0.9rem;
+    }
+
+    th, td {
+        padding: 12px 15px;
+    }
+
+    /* Ensure the app takes full height on mobile */
+    #app {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* Hide sidebar elements if they exist in your layout */
+    .sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Adjust button padding for smaller screens */
+    button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    /* Reduce table padding for small screens */
+    th, td {
+        padding: 10px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    /* Adjust layout for small screen size */
+    .table-container {
+        margin: 0 5px;
+    }
 }

@@ -3,43 +3,32 @@
     <header class="header">
       <h1 class="title">Wall of Shame</h1>
     </header>
-    <main class="main">
-      <LeaderboardTable :fails="fails" />
-    </main>
+    <div class="layout">
+      <Sidebar />
+      <main class="main">
+        <router-view /> <!-- This will render the current route's component -->
+      </main>
+    </div>
   </div>
 </template>
 
 <script>
-import LeaderboardTable from "./components/LeaderboardTable.vue";
+import Sidebar from "./components/Sidebar.vue"; // Import the Sidebar component
 import "./style.css";
 
 export default {
   components: {
-    LeaderboardTable,
-  },
-  data() {
-    return {
-      fails: [],
-    };
-  },
-  async created() {
-    const apiUrl = import.meta.env.VITE_APP_API_URL || "http://localhost:8080";
-    try {
-      const response = await fetch(`${apiUrl}/fail/leaderboard`);
-      if (!response.ok) {
-        console.error("Failed to fetch leaderboard data");
-        return;
-      }
-      this.fails = await response.json();
-    } catch (error) {
-      console.error("Error fetching leaderboard data:", error);
-    }
+    Sidebar, // Register the Sidebar component
   },
 };
 </script>
 
 <style>
 /* Main layout */
+.layout {
+  display: flex;
+}
+
 .main {
   flex: 1;
   display: flex;
