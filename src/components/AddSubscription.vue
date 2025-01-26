@@ -88,7 +88,6 @@ export default {
 
 <style scoped>
 .add-subscription-container {
-  max-width: 40%;
   margin: 20px auto;
   padding: 6%;
   background-color: var(--table-row-color);
@@ -113,7 +112,6 @@ label {
 
 input,
 select {
-  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;

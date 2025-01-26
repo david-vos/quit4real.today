@@ -116,8 +116,6 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 90%;
-  margin-left: auto;
 }
 
 /* Button container styling */
