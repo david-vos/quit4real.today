@@ -1,7 +1,7 @@
 <template>
   <div class="layout-container">
     <!-- Button to open the Add Subscription popup -->
-    <div v-if="showPopup" class="button-container">
+    <div class="button-container">
       <button @click="togglePopup">Add Subscription</button>
     </div>
 
@@ -38,7 +38,7 @@
     <!-- Popup Modal -->
     <div v-if="showPopup" class="popup-overlay" @click.self="togglePopup">
       <div class="popup-content">
-        <add-subscription @close="togglePopup" />
+        <add-subscription @close="togglePopup" :close-popup="togglePopup" />
       </div>
     </div>
   </div>

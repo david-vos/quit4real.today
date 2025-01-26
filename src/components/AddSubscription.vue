@@ -1,6 +1,7 @@
 <template>
   <div class="add-subscription-container">
     <h2>Add Subscription</h2>
+    <button @click="closePopup">buh</button>
     <form @submit.prevent="submitSubscription">
       <div class="form-group">
         <label for="display_name">Display Name:</label>
@@ -57,6 +58,12 @@ export default {
         platform_id: 'steam', // Default to steam
       },
     };
+  },
+  props: {
+    closePopup: {
+      type: Function,
+      required: true,
+    },
   },
   methods: {
     async submitSubscription() {
