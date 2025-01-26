@@ -1,5 +1,3 @@
-package components
-
 <template>
   <div class="add-subscription-container">
     <h2>Add Subscription</h2>
@@ -136,4 +134,3 @@ button:hover {
   color: #b7b7b7; /* Light gray for the info message */
 }
 </style>
-

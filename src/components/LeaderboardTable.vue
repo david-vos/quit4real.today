@@ -1,7 +1,7 @@
 <template>
   <div class="layout-container">
     <!-- Button to open the Add Subscription popup -->
-    <div class="button-container">
+    <div v-if="showPopup" class="button-container">
       <button @click="togglePopup">Add Subscription</button>
     </div>
 
