@@ -1,4 +1,7 @@
 <template>
+  <!-- Notification Component -->
+  <Notification />
+
   <div class="layout-container">
     <!-- Button to open the Add Subscription popup -->
     <div class="button-container">
@@ -46,9 +49,14 @@
 
 <script>
 import AddSubscription from './AddSubscription.vue';
+import Notification from "./Notification.vue";
+import {addNotification} from "./notificationService.js";
+
+addNotification('debug', 'This website is still in Pre-Alpha bugs will happen!');
 
 export default {
   components: {
+    Notification,
     AddSubscription,
   },
   data() {
@@ -64,11 +72,13 @@ export default {
       const response = await fetch(`${apiUrl}/fail/leaderboard`);
       if (!response.ok) {
         console.error("Failed to fetch leaderboard data");
+        addNotification('error', 'Failed to fetch leaderboard');
         return;
       }
       this.fails = await response.json(); // Store fetched data in the fails array
     } catch (error) {
       console.error("Error fetching leaderboard data:", error);
+      addNotification('error', "Something went wrong");
     }
   },
   methods: {
@@ -116,6 +126,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 100%;
 }
 
 /* Button container styling */

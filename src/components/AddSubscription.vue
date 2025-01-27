@@ -1,95 +1,104 @@
 <template>
-  <div class="add-subscription-container">
-    <h2>Add Subscription</h2>
-    <button @click="closePopup">Close</button>
-    <form @submit.prevent="submitSubscription">
-      <div class="form-group">
-        <label for="display_name">Display Name:</label>
-        <input
-            type="text"
-            id="display_name"
-            v-model="subscription.display_name"
-            required
-        />
-      </div>
-      <div class="form-group">
-        <label for="platform_user_id">Platform User ID:</label>
-        <input
-            type="text"
-            id="platform_user_id"
-            v-model="subscription.platform_user_id"
-            required
-        />
-      </div>
-      <div class="form-group">
-        <label for="platform_game_id">Platform Game ID:</label>
-        <input
-            type="text"
-            id="platform_game_id"
-            v-model="subscription.platform_game_id"
-            required
-        />
-      </div>
-      <div class="form-group">
-        <label for="platform_id">Platform:</label>
-        <select
-            id="platform_id"
-            v-model="subscription.platform_id"
-            required
-        >
-          <option value="" disabled>Select a platform</option>
-          <option value="steam">Steam</option>
-        </select>
-        <p class="info-message">More platforms coming soon.</p>
-      </div>
-      <button type="submit">Add Subscription</button>
-    </form>
+  <div>
+    <!-- Notification Component -->
+    <Notification/>
+
+    <!-- Add Subscription Form -->
+    <div class="add-subscription-container">
+      <h2>Add Subscription</h2>
+      <button @click="closePopup">Close</button>
+      <form @submit.prevent="submitSubscription">
+        <div class="form-group">
+          <label for="display_name">Display Name:</label>
+          <input
+              type="text"
+              id="display_name"
+              v-model="subscription.display_name"
+              required
+          />
+          <p class="info-message">*Only for visual use</p>
+
+        </div>
+        <div class="form-group">
+          <label for="platform_user_id">Platform User ID:</label>
+          <input
+              type="text"
+              id="platform_user_id"
+              v-model="subscription.platform_user_id"
+              required
+          />
+          <p class="info-message">*AccountID found in their URL, No current support for Vanity URL</p>
+        </div>
+        <div class="form-group">
+          <label for="platform_game_id">Platform Game ID:</label>
+          <input
+              type="text"
+              id="platform_game_id"
+              v-model="subscription.platform_game_id"
+              required
+          />
+          <p class="info-message">*AppID/GameID can be found on SteamDB</p>
+        </div>
+        <div class="form-group">
+          <label for="platform_id">Platform:</label>
+          <select id="platform_id" v-model="subscription.platform_id" required>
+            <option value="" disabled>Select a platform</option>
+            <option value="steam">Steam</option>
+          </select>
+          <p class="info-message">*More platforms coming soon.</p>
+        </div>
+        <button type="submit">Add Subscription</button>
+      </form>
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      subscription: {
-        display_name: '',
-        platform_user_id: '',
-        platform_game_id: '',
-        platform_id: 'steam', // Default to steam
+<script setup>
+import {reactive} from 'vue';
+import Notification from './Notification.vue';
+import {addNotification} from './notificationService'; // Import the function from the service
+
+// Props
+defineProps({
+  closePopup: {
+    type: Function,
+    required: true,
+  },
+});
+// State for the subscription form
+const subscription = reactive({
+  display_name: '',
+  platform_user_id: '',
+  platform_game_id: '',
+  platform_id: 'steam', // Default to steam
+});
+
+// Submit the subscription form
+async function submitSubscription() {
+  try {
+    const apiUrl = import.meta.env.VITE_APP_API_URL;
+    const response = await fetch(`${apiUrl}/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    };
-  },
-  props: {
-    closePopup: {
-      type: Function,
-      required: true,
-    },
-  },
-  methods: {
-    async submitSubscription() {
-      try {
-        const apiUrl = import.meta.env.VITE_APP_API_URL;
-        const response = await fetch(apiUrl+'/subscriptions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(this.subscription),
-        });
+      body: JSON.stringify(subscription),
+    });
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Subscription added:', data);
+      addNotification('success', 'Subscription added successfully!');
+    } else {
+      addNotification('success', 'Error adding subscription' + response.headers);
+      throw new Error('Network response was not ok');
+    }
 
-        const data = await response.json();
-        console.log('Subscription added:', data);
-// Optionally, redirect or show a success message
-      } catch (error) {
-        console.error('Error adding subscription:', error);
-      }
-    },
-  },
-};
+  } catch (error) {
+    console.error('Error adding subscription:', error);
+    addNotification('error', 'Error adding subscription. Please try again.');
+  }
+}
 </script>
 
 <style scoped>
@@ -121,6 +130,7 @@ select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 90%;
 }
 
 button {
