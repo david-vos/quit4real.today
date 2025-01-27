@@ -1,0 +1,10 @@
+services:
+  vite-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4173:4173"
+    container_name: vite-vue-app
+    extra_hosts:
+      - "quit4real.today:127.0.0.1"
