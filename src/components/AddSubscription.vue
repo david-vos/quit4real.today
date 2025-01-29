@@ -93,15 +93,20 @@ const subscription = reactive({
   platform_id: 'steam',
 });
 
-async function submitSubscription(subscription) {
+async function submitSubscription() {
   try {
-    const apiUrl = import.meta.env.VITE_APP_API_URL; // Ensure this is set correctly
+    const apiUrl = import.meta.env.VITE_APP_API_URL;
     const response = await fetch(`${apiUrl}/subscriptions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription),
+      body: JSON.stringify({
+        display_name: subscription.display_name,
+        platform_user_id: subscription.platform_user_id,
+        platform_game_id: subscription.platform_game_id,
+        platform_id: subscription.platform_id,
+      }),  // Sending only the subscription fields as the old FE did
     });
 
     if (response.ok) {
@@ -109,8 +114,7 @@ async function submitSubscription(subscription) {
       console.log('Subscription added:', data);
       addNotification('success', 'Subscription added successfully!');
     } else {
-      console.error('Error response:', response);
-      addNotification('error', `Error adding subscription: ${response.statusText}`);
+      addNotification('error', 'Error adding subscription: ' + response.statusText);
       throw new Error('Network response was not ok');
     }
   } catch (error) {
@@ -118,6 +122,7 @@ async function submitSubscription(subscription) {
     addNotification('error', 'Error adding subscription. Please try again.');
   }
 }
+
 
 const searchQuery = ref('');
 const searchResults = ref([]);
