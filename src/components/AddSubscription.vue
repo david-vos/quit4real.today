@@ -106,15 +106,19 @@ async function submitSubscription() {
         platform_user_id: subscription.platform_user_id,
         platform_game_id: subscription.platform_game_id,
         platform_id: subscription.platform_id,
-      }),  // Sending only the subscription fields as the old FE did
+      }),
     });
 
-    if (response.status === 201) {
-      const data = await response.json();
-      console.log('Subscription added:', data);
+    if (response.ok) {
+      // Read response as plain text, since it's just a string
+      const text = await response.text();
+      console.log('Subscription added:', text);
       addNotification('success', 'Subscription added successfully!');
     } else {
-      addNotification('error', 'Error adding subscription: ' + response.statusText);
+      // Handle the error response as plain text as well
+      const errorText = await response.text();
+      console.error('Error adding subscription:', errorText);
+      addNotification('error', `Error adding subscription: ${errorText}`);
       throw new Error('Network response was not ok');
     }
   } catch (error) {
@@ -122,6 +126,7 @@ async function submitSubscription() {
     addNotification('error', 'Error adding subscription. Please try again.');
   }
 }
+
 
 
 const searchQuery = ref('');
