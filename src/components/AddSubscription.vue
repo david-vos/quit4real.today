@@ -109,7 +109,7 @@ async function submitSubscription() {
       }),  // Sending only the subscription fields as the old FE did
     });
 
-    if (response.ok) {
+    if (response.status === 201) {
       const data = await response.json();
       console.log('Subscription added:', data);
       addNotification('success', 'Subscription added successfully!');
