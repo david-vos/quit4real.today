@@ -37,7 +37,6 @@
           </tr>
           </tbody>
         </table>
-
         <div v-else class="empty-state">
           <ClipboardListIcon class="empty-icon" />
           <h3>No Subscriptions Yet</h3>
@@ -69,18 +68,22 @@ const fails = ref([])
 const showPopup = ref(false)
 
 onMounted(async () => {
-  const apiUrl = import.meta.env.VITE_APP_API_URL
+  const apiUrl = import.meta.env.VITE_APP_API_URL;
   try {
-    const response = await fetch(`${apiUrl}/fail/leaderboard`)
+    console.log('Fetching from:', `${apiUrl}/fail/leaderboard`);
+    const response = await fetch(`${apiUrl}/fail/leaderboard`);
+    console.log('Response status:', response.status);
     if (!response.ok) {
-      console.error("Failed to fetch leaderboard data")
-      addNotification('error', 'Failed to fetch leaderboard')
-      return
+      console.error("Failed to fetch leaderboard data");
+      addNotification('error', 'Failed to fetch leaderboard');
+      return;
     }
-    fails.value = await response.json()
+    const data = await response.json();
+    console.log('Fetched data:', data);
+    fails.value = data;
   } catch (error) {
-    console.error("Error fetching leaderboard data:", error)
-    addNotification('error', "Something went wrong")
+    console.error("Error fetching leaderboard data:", error);
+    addNotification('error', "Something went wrong");
   }
 })
 
