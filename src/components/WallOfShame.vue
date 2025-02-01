@@ -14,7 +14,7 @@
       </header>
 
       <div class="table-container">
-        <table v-if="fails.length > 0">
+        <table v-if="fails && fails.length > 0">
           <thead>
           <tr>
             <th>PLAYER</th>
@@ -39,9 +39,9 @@
         </table>
         <div v-else class="empty-state">
           <ClipboardListIcon class="empty-icon" />
-          <h3>No Subscriptions Yet</h3>
-          <p>Start by adding a game subscription to track</p>
-          <button @click="togglePopup" class="add-button">
+          <h3>No Fails Yet</h3>
+          <p>{{ fails === null ? "Start by adding a game subscription to track" : "No one has failed yet. Keep it up!" }}</p>
+          <button v-if="fails === null" @click="togglePopup" class="add-button">
             Add Your First Subscription
           </button>
         </div>
@@ -68,24 +68,26 @@ const fails = ref([])
 const showPopup = ref(false)
 
 onMounted(async () => {
-  const apiUrl = import.meta.env.VITE_APP_API_URL;
-  try {
-    console.log('Fetching from:', `${apiUrl}/fail/leaderboard`);
-    const response = await fetch(`${apiUrl}/fail/leaderboard`);
-    console.log('Response status:', response.status);
-    if (!response.ok) {
-      console.error("Failed to fetch leaderboard data");
-      addNotification('error', 'Failed to fetch leaderboard');
-      return;
-    }
-    const data = await response.json();
-    console.log('Fetched data:', data);
-    fails.value = data;
-  } catch (error) {
-    console.error("Error fetching leaderboard data:", error);
-    addNotification('error', "Something went wrong");
-  }
+  await fetchLeaderboard()
 })
+
+async function fetchLeaderboard() {
+  const apiUrl = import.meta.env.VITE_APP_API_URL
+  try {
+    const response = await fetch(`${apiUrl}/fail/leaderboard`)
+    if (!response.ok) {
+      console.error("Failed to fetch leaderboard data")
+      addNotification('error', 'Failed to fetch leaderboard')
+      return
+    }
+    const data = await response.json()
+    fails.value = data // This could be null or an array
+    console.log('Fetched data:', data) // For debugging
+  } catch (error) {
+    console.error("Error fetching leaderboard data:", error)
+    addNotification('error', "Something went wrong")
+  }
+}
 
 function timeAgo(date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000)
