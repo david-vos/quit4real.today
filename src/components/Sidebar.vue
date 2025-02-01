@@ -1,58 +1,43 @@
 <template>
-  <div class="sidebar">
-    <h2>Navigation</h2>
-    <ul>
-      <li>
-        <router-link to="/">Wall of Shame</router-link><br><br>
-      </li>
-      <li>
-        <router-link class="AddButton" to="/add-subscription">Add Subscription</router-link>
-      </li>
-    </ul>
-  </div>
+  <nav class="sidebar">
+    <h2 class="nav-title">Navigation</h2>
+    <router-link to="/" class="nav-link active">Wall of Shame</router-link>
+    <button @click="$emit('add-subscription')" class="add-button">
+      <PlusIcon class="icon" />
+      Add Subscription
+    </button>
+  </nav>
 </template>
 
-<script>
-export default {
-  name: 'Sidebar',
-};
+<script setup>
+import { PlusIcon } from 'lucide-vue-next'
 </script>
 
-<style scoped>
+<style>
 .sidebar {
-  width: 200px;
-  background-color: var(--header-bg-color);
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
-  height: 100vh;
+  width: 250px;
+  padding: 2rem;
+  background-color: var(--surface);
+  border-right: 1px solid var(--border);
 }
 
-.sidebar h2 {
-  color: var(--highlight-color);
+.nav-title {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
 }
 
-.sidebar ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.AddButton {
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  background-color: var(--highlight-color);
-}
-
-.sidebar li {
-  margin: 15px 0;
-}
-
-.sidebar a {
-  color: var(--text-color);
+.nav-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--text);
   text-decoration: none;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s;
 }
 
-.sidebar a:hover {
-  color: var(--highlight-color);
+.nav-link:hover, .nav-link.active {
+  background-color: var(--surface-hover);
 }
 </style>

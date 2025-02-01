@@ -1,76 +1,73 @@
 <template>
-  <div>
-    <!-- Notification Component -->
+  <div class="add-subscription-container">
     <Notification />
+    <h2 class="title">Add Subscription</h2>
+    <form @submit.prevent="submitSubscription">
+      <div class="form-group">
+        <label for="display_name">Display Name</label>
+        <input
+            type="text"
+            id="display_name"
+            v-model="subscription.display_name"
+            required
+        />
+        <p class="info-message">*Only for visual use</p>
+      </div>
 
-    <!-- Add Subscription Form -->
-    <div class="add-subscription-container">
-      <h2>Add Subscription</h2>
-      <button @click="closePopup">Close</button>
-      <form @submit.prevent="submitSubscription">
-        <div class="form-group">
-          <label for="display_name">Display Name:</label>
+      <div class="form-group">
+        <label for="platform_user_id">Platform User ID</label>
+        <input
+            type="text"
+            id="platform_user_id"
+            v-model="subscription.platform_user_id"
+            required
+        />
+        <p class="info-message">*AccountID found in their URL, No current support for Vanity URL</p>
+      </div>
+
+      <div class="form-group">
+        <label for="platform_game_id">Platform Game ID</label>
+        <div class="input-wrapper">
           <input
               type="text"
-              id="display_name"
-              v-model="subscription.display_name"
-              required
+              id="platform_game_id"
+              v-model="searchQuery"
+              @input="searchGames"
+              placeholder="Search for a game..."
+              autocomplete="off"
+              @keydown.down.prevent="moveHighlight(1)"
+              @keydown.up.prevent="moveHighlight(-1)"
+              @keydown.enter.prevent="selectHighlighted"
           />
-          <p class="info-message">*Only for visual use</p>
+          <ul v-if="searchResults.length > 0" class="search-results">
+            <li
+                v-for="(game, index) in searchResults"
+                :key="game.id"
+                @click="selectGame(game.id)"
+                :class="{ highlighted: index === highlightedIndex }"
+                :ref="(el) => (searchItems[index] = el)"
+            >
+              {{ game.name }}
+            </li>
+          </ul>
         </div>
+        <p class="info-message">*AppID/GameID can be found on SteamDB</p>
+      </div>
 
-        <div class="form-group">
-          <label for="platform_user_id">Platform User ID:</label>
-          <input
-              type="text"
-              id="platform_user_id"
-              v-model="subscription.platform_user_id"
-              required
-          />
-          <p class="info-message">*AccountID found in their URL, No current support for Vanity URL</p>
-        </div>
+      <div class="form-group">
+        <label for="platform_id">Platform</label>
+        <select id="platform_id" v-model="subscription.platform_id" required>
+          <option value="" disabled>Select a platform</option>
+          <option value="steam">Steam</option>
+        </select>
+        <p class="info-message">*More platforms coming soon.</p>
+      </div>
 
-        <div class="form-group">
-          <label for="platform_game_id">Platform Game ID:</label>
-          <div class="input-wrapper">
-            <input
-                type="text"
-                id="platform_game_id"
-                v-model="searchQuery"
-                @input="searchGames"
-                placeholder="Search for a game..."
-                autocomplete="off"
-                @keydown.down.prevent="moveHighlight(1)"
-                @keydown.up.prevent="moveHighlight(-1)"
-                @keydown.enter.prevent="selectHighlighted"
-            />
-            <ul v-if="searchResults.length > 0" class="search-results">
-              <li
-                  v-for="(game, index) in searchResults"
-                  :key="game.id"
-                  @click="selectGame(game.id)"
-                  :class="{ highlighted: index === highlightedIndex }"
-                  :ref="(el) => (searchItems[index] = el)"
-              >
-                {{ game.name }}
-              </li>
-            </ul>
-          </div>
-          <p class="info-message">*AppID/GameID can be found on SteamDB</p>
-        </div>
-
-        <div class="form-group">
-          <label for="platform_id">Platform:</label>
-          <select id="platform_id" v-model="subscription.platform_id" required>
-            <option value="" disabled>Select a platform</option>
-            <option value="steam">Steam</option>
-          </select>
-          <p class="info-message">*More platforms coming soon.</p>
-        </div>
-
-        <button type="submit">Add Subscription</button>
-      </form>
-    </div>
+      <div class="form-actions">
+        <button type="submit" class="submit-button">Add Subscription</button>
+        <button type="button" @click="closePopup" class="cancel-button">Cancel</button>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -79,7 +76,7 @@ import { reactive, ref, watch, nextTick } from 'vue';
 import Notification from './Notification.vue';
 import { addNotification } from './notificationService';
 
-defineProps({
+const props = defineProps({
   closePopup: {
     type: Function,
     required: true,
@@ -101,33 +98,24 @@ async function submitSubscription() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        display_name: subscription.display_name,
-        platform_user_id: subscription.platform_user_id,
-        platform_game_id: subscription.platform_game_id,
-        platform_id: subscription.platform_id,
-      }),
+      body: JSON.stringify(subscription),
     });
 
     if (response.ok) {
-      // Read response as plain text, since it's just a string
       const text = await response.text();
       console.log('Subscription added:', text);
       addNotification('success', 'Subscription added successfully!');
+      props.closePopup();
     } else {
-      // Handle the error response as plain text as well
       const errorText = await response.text();
       console.error('Error adding subscription:', errorText);
       addNotification('error', `Error adding subscription: ${errorText}`);
-      throw new Error('Network response was not ok');
     }
   } catch (error) {
     console.error('Error adding subscription:', error);
     addNotification('error', 'Error adding subscription. Please try again.');
   }
 }
-
-
 
 const searchQuery = ref('');
 const searchResults = ref([]);
@@ -147,7 +135,7 @@ async function searchGames() {
     );
     if (response.ok) {
       const data = await response.json();
-      searchResults.value = data || []; // Handle null response
+      searchResults.value = data || [];
     } else {
       searchResults.value = [];
     }
@@ -194,86 +182,52 @@ function moveHighlight(direction) {
 
 <style scoped>
 .add-subscription-container {
-  margin: 20px auto;
-  padding: 6%;
-  background-color: var(--table-row-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  background-color: var(--surface);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
   text-align: center;
-  color: var(--highlight-color);
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
-  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  color: var(--text);
+  font-weight: 500;
 }
 
 input,
 select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 90%;
-}
-
-button {
   width: 100%;
-  padding: 10px;
-  background-color: var(--highlight-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background-color: var(--background);
+  color: var(--text);
+  transition: border-color 0.2s;
 }
 
-button:hover {
-  background-color: #e66a00; /* Slightly darker on hover */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
 }
 
 .info-message {
-  font-size: 0.9rem;
-  color: #b7b7b7; /* Light gray for the info message */
-}
-
-.add-subscription-container {
-  margin: 20px auto;
-  padding: 6%;
-  background-color: var(--table-row-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-h2 {
-  text-align: center;
-  color: var(--highlight-color);
-}
-
-.form-group {
-  margin-bottom: 15px;
-  position: relative; /* For dropdown positioning */
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--text-color);
-}
-
-input,
-select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box; /* Ensure dropdown matches input width */
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
 }
 
 .input-wrapper {
@@ -281,45 +235,61 @@ select {
 }
 
 .search-results {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  background: white;
-  border: 1px solid #ccc;
-  max-height: 150px;
-  overflow-y: auto;
   position: absolute;
-  width: 100%; /* Match the input width */
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
   z-index: 10;
-  border-radius: 4px;
 }
 
 .search-results li {
-  padding: 10px;
+  padding: 0.75rem;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .search-results li:hover,
 .search-results li.highlighted {
-  background-color: #f0f0f0;
+  background-color: var(--surface-hover);
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background-color: var(--highlight-color);
-  color: white;
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submit-button,
+.cancel-button {
+  flex: 1;
+  padding: 0.75rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.5rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-button:hover {
-  background-color: #e66a00;
+.submit-button {
+  background-color: var(--primary);
+  color: white;
 }
 
-.info-message {
-  font-size: 0.9rem;
-  color: #b7b7b7;
+.submit-button:hover {
+  background-color: var(--primary-hover);
+}
+
+.cancel-button {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+
+.cancel-button:hover {
+  background-color: var(--border);
 }
 </style>

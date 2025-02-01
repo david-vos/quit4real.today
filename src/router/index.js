@@ -1,13 +1,13 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../components/LeaderboardTable.vue'; // Your home component
+import WallOfShame from '../components/WallOfShame.vue'; // Your home component
 import AddSubscription from '../components/AddSubscription.vue'; // Your new component
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: Home,
+        component: WallOfShame,
     },
     {
         path: '/add-subscription',

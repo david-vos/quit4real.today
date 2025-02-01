@@ -1,8 +1,17 @@
-// src/main.js
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router'; // Import the router
+import { createApp } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import App from './App.vue'
+import WallOfShame from './components/WallOfShame.vue'
 
-const app = createApp(App);
-app.use(router); // Use the router
-app.mount('#app');
+const routes = [
+    { path: '/', component: WallOfShame }
+]
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes
+})
+
+const app = createApp(App)
+app.use(router)
+app.mount('#app')
