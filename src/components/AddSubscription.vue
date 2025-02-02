@@ -74,7 +74,7 @@
 <script setup>
 import { reactive, ref, watch, nextTick } from 'vue';
 import Notification from './Notification.vue';
-import { addNotification } from './notificationService';
+import { addNotification } from '../notificationService.js';
 
 const props = defineProps({
   closePopup: {

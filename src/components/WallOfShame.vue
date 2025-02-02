@@ -1,71 +1,60 @@
 <template>
-  <div class="app-container">
-    <Sidebar @add-subscription="togglePopup" />
+  <div class="wall-of-shame">
+    <Notification />
 
-    <main class="main-content">
-      <Notification />
+    <header class="header">
+      <h1 class="title">WALL OF SHAME</h1>
+      <button @click="$emit('toggle-add-subscription')" class="add-button">
+        <PlusIcon class="icon" />
+        <span class="button-text">Add Subscription</span>
+      </button>
+    </header>
 
-      <header class="header">
-        <h1 class="title">WALL OF SHAME</h1>
-        <button @click="togglePopup" class="add-button">
-          <PlusIcon class="icon" />
-          Add Subscription
-        </button>
-      </header>
+    <div class="content-container">
+      <table v-if="fails && fails.length > 0">
+        <thead>
+        <tr>
+          <th>PLAYER</th>
+          <th>GAME</th>
+          <th>PLAY COUNT</th>
+          <th>LAST PLAYED</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="player in fails" :key="player.id"
+            :class="{ 'shame': player.duration_minutes > 0 }">
+          <td @click="handleClick(player.platform_user_id)">
+            {{ player.display_name }}
+          </td>
+          <td @click="handleClick(player.platform_game_id)">
+            {{ player.game_name }}
+          </td>
+          <td>{{ player.duration_minutes + " minutes" }}</td>
+          <td>{{ timeAgo(player.timestamp) }}</td>
+        </tr>
+        </tbody>
+      </table>
 
-      <div class="table-container">
-        <table v-if="fails && fails.length > 0">
-          <thead>
-          <tr>
-            <th>PLAYER</th>
-            <th>GAME</th>
-            <th>PLAY COUNT</th>
-            <th>LAST PLAYED</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="player in fails" :key="player.id"
-              :class="{ 'shame': player.duration_minutes > 0 }">
-            <td @click="handleClick(player.platform_user_id)">
-              {{ player.display_name }}
-            </td>
-            <td @click="handleClick(player.platform_game_id)">
-              {{ player.game_name }}
-            </td>
-            <td>{{ player.duration_minutes + " minutes" }}</td>
-            <td>{{ timeAgo(player.timestamp) }}</td>
-          </tr>
-          </tbody>
-        </table>
-        <div v-else class="empty-state">
-          <ClipboardListIcon class="empty-icon" />
-          <h3>No Fails Yet</h3>
-          <p>{{ fails === null ? "Start by adding a game subscription to track" : "No one has failed yet. Keep it up!" }}</p>
-          <button v-if="fails === null" @click="togglePopup" class="add-button">
-            Add Your First Subscription
-          </button>
-        </div>
-      </div>
-    </main>
-
-    <div v-if="showPopup" class="popup-overlay" @click.self="togglePopup">
-      <div class="popup-content">
-        <AddSubscription @close="togglePopup" :close-popup="togglePopup" />
-      </div>
+      <EmptyState
+          v-else
+          title="No Fails Yet"
+          :message="fails === null ? 'Start by adding a game subscription to track' : 'No one has failed yet. Keep it up!'"
+          :showButton="fails === null"
+          buttonText="Add Your First Subscription"
+          @action="$emit('toggle-add-subscription')"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { PlusIcon, ClipboardListIcon } from 'lucide-vue-next'
-import Sidebar from './Sidebar.vue'
-import AddSubscription from './AddSubscription.vue'
+import { PlusIcon } from 'lucide-vue-next'
 import Notification from "./Notification.vue"
-import { addNotification } from "./notificationService.js"
+import EmptyState from "./EmptyState.vue"
+import { addNotification } from "../notificationService.js"
 
-const fails = ref([])
-const showPopup = ref(false)
+const fails = ref(null)
 
 onMounted(async () => {
   await fetchLeaderboard()
@@ -81,8 +70,8 @@ async function fetchLeaderboard() {
       return
     }
     const data = await response.json()
-    fails.value = data // This could be null or an array
-    console.log('Fetched data:', data) // For debugging
+    fails.value = data
+    console.log('Fetched data:', data)
   } catch (error) {
     console.error("Error fetching leaderboard data:", error)
     addNotification('error', "Something went wrong")
@@ -108,30 +97,22 @@ function handleClick(id) {
   console.log(`Clicked ID: ${id}`)
 }
 
-function togglePopup() {
-  showPopup.value = !showPopup.value
-}
-
-// Debug notification
 addNotification('debug', 'This website is still in Pre-Alpha bugs will happen!')
 </script>
 
 <style scoped>
-.app-container {
+.wall-of-shame {
   display: flex;
-  min-height: 100vh;
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .title {
@@ -142,10 +123,13 @@ addNotification('debug', 'This website is still in Pre-Alpha bugs will happen!')
   -webkit-text-fill-color: transparent;
 }
 
-.table-container {
+.content-container {
+  flex: 1;
   background-color: var(--surface);
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 table {
@@ -177,39 +161,49 @@ tr.shame {
   background-color: var(--shame);
 }
 
-.empty-state {
+.add-button {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 4rem 2rem;
-  text-align: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.empty-icon {
-  width: 4rem;
-  height: 4rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
+.add-button:hover {
+  background-color: var(--primary-hover);
 }
 
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
-.popup-content {
-  background: var(--surface);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  width: 50%;
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .button-text {
+    display: none;
+  }
+
+  .add-button {
+    padding: 0.75rem;
+  }
+
+  th, td {
+    padding: 0.75rem;
+  }
 }
 </style>

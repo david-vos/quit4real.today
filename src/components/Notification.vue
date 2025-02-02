@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { notifications } from './notificationService'; // Import reactive state
+import { notifications } from '../notificationService.js'; // Import reactive state
 
 // No need to define addNotification or removeNotification here.
 </script>
