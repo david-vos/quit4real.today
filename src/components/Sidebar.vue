@@ -25,7 +25,7 @@ defineEmits(['add-subscription', 'toggle-sidebar'])
 
 <style scoped>
 .sidebar {
-  width: 250px;
+  width: 10%;
   height: 100vh;
   position: fixed;
   top: 0;
@@ -51,10 +51,6 @@ defineEmits(['add-subscription', 'toggle-sidebar'])
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   transition: background-color 0.2s;
-}
-
-.nav-link:hover, .nav-link.active {
-  background-color: var(--surface-hover);
 }
 
 .add-button {

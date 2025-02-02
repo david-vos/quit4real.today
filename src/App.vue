@@ -6,17 +6,14 @@
         <MenuIcon v-if="!isSidebarOpen" />
         <XIcon v-else />
       </button>
-      <router-view @toggle-add-subscription="toggleAddSubscriptionModal"></router-view>
+      <router-view></router-view>
     </div>
-
-    <EmptyState v-if="showAddSubscriptionModal" @close="toggleAddSubscriptionModal" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import Sidebar from './components/Sidebar.vue'
-import EmptyState from './components/EmptyState.vue'
 import { MenuIcon, XIcon } from 'lucide-vue-next'
 
 const showAddSubscriptionModal = ref(false)
@@ -33,13 +30,6 @@ function toggleSidebar() {
 
 <style>
 @import './assets/global.css';
-
-#app {
-  display: flex;
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-}
 
 .main-content {
   flex: 1;
@@ -75,21 +65,12 @@ function toggleSidebar() {
   }
 
   .main-content {
-    margin-left: 250px;
+    margin-left: 7%;
   }
 
   #app.sidebar-open .main-content {
-    margin-left: 250px;
+    margin-left: 7%;
   }
 }
 
-@media (max-width: 767px) {
-  .main-content {
-    margin-left: 0;
-  }
-
-  #app.sidebar-open .main-content {
-    margin-left: 250px;
-  }
-}
 </style>

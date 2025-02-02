@@ -1,42 +1,76 @@
 <template>
-  <div class="subscriptions-container">
-    <header class="header">
-      <h2 class="title">Subscriptions</h2>
-      <button @click="$emit('toggle-add-subscription')" class="add-button">
-        <PlusIcon class="icon" />
-        <span class="button-text">Add Subscription</span>
-      </button>
-    </header>
+  <div class="app-container">
+    <Sidebar @add-subscription="togglePopup" />
 
-    <div class="content-container">
-      <div v-if="subscriptions && subscriptions.length > 0" class="subscription-list">
-        <div v-for="sub in subscriptions" :key="sub.ID" class="subscription-item">
-          <h3>{{ sub.display_name }}</h3>
-          <p><strong>Game:</strong> {{ sub.game_name }}</p>
-          <p><strong>Platform:</strong> {{ sub.platform_id }}</p>
-          <p><strong>Played:</strong> {{ formatPlayTime(sub.played_amount) }}</p>
+    <main class="main-content">
+      <Notification />
+
+      <header class="header">
+        <h1 class="title">Active Subscriptions</h1>
+        <button @click="togglePopup" class="add-button">
+          <PlusIcon class="icon" />
+          Add Subscription
+        </button>
+      </header>
+
+      <div  class="table-container">
+        <table v-if="subscriptions && subscriptions.length > 0">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Game</th>
+              <th>Platform</th>
+              <th>Current playtime</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="sub in subscriptions" :key="sub.ID" class="shame">
+              <td @click="handleClick(sub.platform_user_id)">
+                {{ sub.display_name }}
+              </td>
+              <td @click="handleClick(sub.platform_game_id)">
+                {{ sub.game_name }}
+              </td>
+              <td>{{ sub.platform_id }}</td>
+              <td>{{ formatPlayTime(sub.played_amount) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div v-else-if="loading" class="loading-state">
+          <p>Loading subscriptions...</p>
         </div>
+
+        <div v-else class="empty-state">
+          <ClipboardListIcon class="empty-icon" />
+          <h3>No Fails Yet</h3>
+          <p>{{ subscriptions === null ? "Start by adding a game subscription to track" : "No one has failed yet. Keep it up!" }}</p>
+          <button v-if="subscriptions === null" @click="togglePopup" class="add-button">
+            Add Your First Subscription
+          </button>
+        </div>
+
       </div>
-      <div v-else-if="loading" class="loading-state">
-        <p>Loading subscriptions...</p>
+    </main>
+
+    <div v-if="showPopup" class="popup-overlay" @click.self="togglePopup">
+      <div class="popup-content">
+        <AddSubscription @close="togglePopup" :close-popup="togglePopup" />
       </div>
-      <EmptyState
-          v-else
-          title="No Subscriptions"
-          message="You haven't added any subscriptions yet."
-          :showButton="true"
-          buttonText="Add Your First Subscription"
-          @action="$emit('toggle-add-subscription')"
-      />
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { PlusIcon } from 'lucide-vue-next'
-import { addNotification } from '../notificationService'
-import EmptyState from './EmptyState.vue'
+import {onMounted, ref} from 'vue'
+import {ClipboardListIcon, PlusIcon} from 'lucide-vue-next'
+import {addNotification} from '../notificationService'
+import Sidebar from "./Sidebar.vue";
+import Notification from "./Notification.vue";
+import AddSubscription from "./AddSubscription.vue";
+
+const showPopup = ref(false)
 
 const subscriptions = ref(null)
 const loading = ref(true)
@@ -52,8 +86,7 @@ async function fetchSubscriptions() {
     if (!response.ok) {
       throw new Error('Failed to fetch subscriptions')
     }
-    const data = await response.json()
-    subscriptions.value = data
+    subscriptions.value = await response.json()
   } catch (error) {
     console.error('Error fetching subscriptions:', error)
     addNotification('error', 'Failed to load subscriptions')
@@ -67,114 +100,60 @@ function formatPlayTime(minutes) {
   const remainingMinutes = minutes % 60
   return `${hours}h ${remainingMinutes}m`
 }
+
+function togglePopup() {
+  showPopup.value = !showPopup.value
+}
+
+function handleClick(id) {
+  console.log(`Clicked ID: ${id}`)
+}
+
+// Debug notification
+addNotification('debug', 'This website is still in Pre-Alpha bugs will happen!')
+
 </script>
 
 <style scoped>
-.subscriptions-container {
+
+.app-container {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 1rem;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--primary);
+  background: linear-gradient(to right, var(--primary), #9333EA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.content-container {
-  flex: 1;
-  background-color: var(--surface);
-  border-radius: 0.5rem;
-  overflow: hidden;
+.empty-state {
   display: flex;
   flex-direction: column;
-}
-
-.subscription-list {
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
-
-.subscription-item {
-  background-color: var(--background);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.subscription-item h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: var(--text);
-}
-
-.subscription-item p {
-  margin: 0.25rem 0;
-  color: var(--text-secondary);
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100%;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 4rem;
+  height: 4rem;
   color: var(--text-secondary);
+  margin-bottom: 1rem;
 }
 
-.add-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background-color: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
 
-.add-button:hover {
-  background-color: var(--primary-hover);
-}
-
-.icon {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-@media (max-width: 768px) {
-  .title {
-    font-size: 2rem;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .button-text {
-    display: none;
-  }
-
-  .add-button {
-    padding: 0.75rem;
-  }
-
-  .subscription-list {
-    grid-template-columns: 1fr;
-  }
-}
 </style>
