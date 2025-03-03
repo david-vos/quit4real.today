@@ -3,6 +3,7 @@
     <h2 class="nav-title">Navigation</h2>
     <router-link to="/" class="nav-link" exact-active-class="active">Wall of Shame</router-link>
     <router-link to="/subscriptions" class="nav-link" active-class="active">Subscriptions</router-link>
+    <router-link to="/user" class="nav-link" active-class="active">Profile</router-link>
     <button @click="$emit('add-subscription')" class="add-button">
       <PlusIcon class="icon" />
       Add Subscription

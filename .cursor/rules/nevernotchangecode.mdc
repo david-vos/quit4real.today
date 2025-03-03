@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+- If a user ask you to fix something. You must always respond with diffrent code than what the user already has
